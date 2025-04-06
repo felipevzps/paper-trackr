@@ -9,7 +9,7 @@ Tired of missing out on cool papers? `paper-trackr` keeps an eye on **PubMed**, 
 
 - Tracks new articles across [PubMed](https://pubmed.ncbi.nlm.nih.gov/), [EuropePMC](https://europepmc.org/), and [bioRxiv](https://www.biorxiv.org/)
 - Custom filters for keywords and authors
-- Sends daily email alerts `(optional)`
+- Sends email alerts `(optional)`
 - Configurable via a simple YAML file
 - Easy to automate
 
