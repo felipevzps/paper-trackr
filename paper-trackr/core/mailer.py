@@ -7,10 +7,11 @@ def send_email(articles, sender_email, receiver_email, password):
         return
 
     msg = MIMEMultipart()
-    msg['Subject'] = "New Articles Found"
+    msg['Subject'] = "Your daily dose of research is here - See what's new!"
     msg['From'] = sender_email
     msg['To'] = receiver_email
-
+    # avoid grouping/threading emails
+    msg['X-Entity-Ref-ID'] = 'null'
     body = ""
     for a in articles:
         body += f"<p><b>{a['title']}</b><br><a href='{a['link']}'>{a['link']}</a><br>Source: {a['source']}</p><hr>"
