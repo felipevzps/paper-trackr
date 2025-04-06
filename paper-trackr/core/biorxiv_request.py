@@ -1,9 +1,13 @@
 import feedparser
 import yaml
+from datetime import datetime, timedelta
 
 def check_biorxiv_feeds(yaml_path="paper-trackr/config/search_queries.yml"):
     matches = []
     seen_links = set()
+
+    # cutoff_date = last 30 days
+    cutoff_date = datetime.today() - timedelta(days=30)
 
     with open(yaml_path) as f:
         queries = yaml.safe_load(f)
@@ -23,12 +27,20 @@ def check_biorxiv_feeds(yaml_path="paper-trackr/config/search_queries.yml"):
             feed = feedparser.parse(url)
 
             for entry in feed.entries:
+                # get published day
+                published = entry.get("published_parsed")
+                if not published:
+                    continue
+
+                published_date = datetime(*published[:6])
+                if published_date < cutoff_date:
+                    continue  # ignore if it was before the cutoff_date
+
                 title = entry.get("title", "")
                 summary = entry.get("summary", "")
                 link = entry.get("link", "")
                 author_line = entry.get("author", "") + " " + entry.get("summary", "")
 
-                # avoid duplicates
                 if link in seen_links:
                     continue
 
@@ -43,5 +55,5 @@ def check_biorxiv_feeds(yaml_path="paper-trackr/config/search_queries.yml"):
                         "source": "bioRxiv"
                     })
 
-    #print(f"[bioRxiv] found papers: {len(matches)}")
     return matches
+
