@@ -1,0 +1,5 @@
+__pycache__/
+accounts.yml
+history.csv
+articles.db
+search_queries.yml
