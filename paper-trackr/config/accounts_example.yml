@@ -1,0 +1,6 @@
+sender:
+  email: your_email@gmail.com
+  password: your_google_app_password
+
+receiver:
+  email: receiver_email@gmail.com
