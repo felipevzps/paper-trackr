@@ -18,6 +18,7 @@ def check_biorxiv_feeds(keywords, authors):
     articles = []
 
     for entry in feed.entries:
+        print(entry.get("description", ""))
         #published = entry.get("published_parsed") or entry.get("updated_parsed")
         #if not published:
         #    continue
@@ -28,6 +29,7 @@ def check_biorxiv_feeds(keywords, authors):
 
         title = entry.get("title", "")
         link = entry.get("link", "")
+        abstract = entry.get("description", "")
         author_line = entry.get("author", "")
 
         author_match = not authors or any(a.lower() in author_line.lower() for a in authors)
@@ -36,6 +38,7 @@ def check_biorxiv_feeds(keywords, authors):
             articles.append({
                 "title": title,
                 "link": link,
+                "abstract": abstract,
                 "source": "bioRxiv",
             })
 

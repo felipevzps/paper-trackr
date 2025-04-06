@@ -17,26 +17,26 @@ def load_search_queries():
     return []
 
 def save_search_queries(queries):
-    with open(SEARCH_QUERIES_FILE, 'w', encoding='utf-8') as f:
+    with open(SEARCH_QUERIES_FILE, "w", encoding="utf-8") as f:
         yaml.dump(queries, f, allow_unicode=True) # use utf-8
 
 def main():
     
     parser = argparse.ArgumentParser(prog="paper-trackr", description="track recent papres from PubMed, EuropePMC and bioRxiv")
-    parser.add_argument('--dry-run', action='store_true', help="run withhout sending email")
-    parser.add_argument('--limit', type=int, default=10, help="limit the number of requested papers")
-    parser.add_argument('--keywords', nargs='+', help="personalized keywords")
-    parser.add_argument('--authors', nargs='+', help="personalized author search")
-    parser.add_argument('--sources', nargs='+', choices=['bioRxiv', 'PubMed', 'EuropePMC'])
+    parser.add_argument("--dry-run", action="store_true", help="run withhout sending email")
+    parser.add_argument("--limit", type=int, default=10, help="limit the number of requested papers")
+    parser.add_argument("--keywords", nargs="+", help="personalized keywords")
+    parser.add_argument("--authors", nargs="+", help="personalized author search")
+    parser.add_argument("--sources", nargs="+", choices=["bioRxiv", "PubMed", "EuropePMC"])
     args = parser.parse_args()
     
     # load accounts
     with open("paper-trackr/config/accounts.yml") as f:
         accounts = yaml.safe_load(f)
 
-    sender_email = accounts['sender']['email']
-    receiver_email = accounts['receiver']['email']
-    password = accounts['sender']['password']
+    sender_email = accounts["sender"]["email"]
+    receiver_email = accounts["receiver"]["email"]
+    password = accounts["sender"]["password"]
  
     init_db()
     new_articles = []
@@ -56,25 +56,25 @@ def main():
         search_queries = load_search_queries()
 
     for query in search_queries:
-        keywords = query['keywords']
-        authors = query['authors']
-        sources = query['sources']
+        keywords = query["keywords"]
+        authors = query["authors"]
+        sources = query["sources"]
 
-        if 'bioRxiv' in sources:
+        if "bioRxiv" in sources:
             new_articles.extend(check_biorxiv_feeds(keywords, authors)[:args.limit])
 
-        if 'PubMed' in sources:
+        if "PubMed" in sources:
             new_articles.extend(search_pubmed(keywords, authors)[:args.limit])
 
-        if 'EuropePMC' in sources:
+        if "EuropePMC" in sources:
             new_articles.extend(search_epmc(keywords, authors)[:args.limit])
 
     # save and send new papers 
     filtered_articles = []
     for art in new_articles:
-        if is_article_new(art['link'], art['title']):
-            save_article(art['link'], art['title'], art.get('source', 'unknown'))
-            print(f"[Salvo] {art['title']} ({art.get('source', 'unknown')})")
+        if is_article_new(art["link"], art["title"]):
+            save_article(art["title"], art["abstract"], art.get("source", "unknown"), art["link"])
+            print(f'[Saved] {art["title"]} ({art.get("source", "unknown")})')
             filtered_articles.append(art)
 
     if not args.dry_run and filtered_articles:
