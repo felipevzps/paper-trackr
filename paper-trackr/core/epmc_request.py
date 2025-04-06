@@ -1,6 +1,13 @@
 import requests
+from datetime import datetime, timedelta
 
 def search_epmc(keywords, authors):
+    # get date from the last 30 days
+    today = datetime.today()
+    thirty_days_ago = today - timedelta(days=30)
+    start_str = thirty_days_ago.strftime('%Y-%m-%d')
+    end_str = today.strftime('%Y-%m-%d')
+
     query_parts = []
 
     if keywords:
@@ -8,6 +15,9 @@ def search_epmc(keywords, authors):
 
     for author in authors:
         query_parts.append(f'AUTH:"{author}"')
+    
+    # filter publications by the last 30 days
+    query_parts.append(f'FIRST_PDATE:[{start_str} TO {end_str}]')
 
     query = ' AND '.join(query_parts)
 
@@ -15,7 +25,7 @@ def search_epmc(keywords, authors):
     params = {
         'query': query,
         'format': 'json',
-        'pageSize': 10
+        'pageSize': 10  
     }
 
     r = requests.get(url, params=params)
@@ -42,4 +52,3 @@ def search_epmc(keywords, authors):
         })
 
     return articles
-
