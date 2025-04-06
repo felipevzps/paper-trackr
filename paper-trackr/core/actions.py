@@ -61,7 +61,7 @@ def main():
         sources = query['sources']
 
         if 'bioRxiv' in sources:
-            new_articles.extend(check_biorxiv_feeds()[:args.limit])
+            new_articles.extend(check_biorxiv_feeds(keywords, authors)[:args.limit])
 
         if 'PubMed' in sources:
             new_articles.extend(search_pubmed(keywords, authors)[:args.limit])
