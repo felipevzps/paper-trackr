@@ -36,7 +36,7 @@ python main.py --keywords "bioinformatics" "genomics"
 ## configuration
 
 Use this file to define your search preferences.  
-Take a look at [search_queries_example.yml](https://github.com/felipevzps/paper-trackr/blob/main/paper-trackr/config/search_queries_example.yml):
+Take a look at [search_queries_example.yml](https://github.com/felipevzps/paper-trackr/blob/main/paper-trackr/config/search_queries.yml):
 
 ```bash
 - authors: []
@@ -52,7 +52,7 @@ Take a look at [search_queries_example.yml](https://github.com/felipevzps/paper-
 ## e-mail alerts (optional)
 
 To enable email alerts, create the `accounts.yml` file with your google app password.  
-Take a look at [accounts_example.yml](https://github.com/felipevzps/paper-trackr/blob/main/paper-trackr/config/accounts_example.yml):
+Take a look at [accounts_example.yml](https://github.com/felipevzps/paper-trackr/blob/main/paper-trackr/config/accounts.yml):
 
 ```bash
 accounts_example.yml
