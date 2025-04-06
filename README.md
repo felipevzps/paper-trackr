@@ -28,6 +28,9 @@ conda env create -f environment.yml
 python paper-trackr/main.py --dry-run
 
 # search manually with keywords or authors
+python main.py --keywords "bioinformatics" "genomics" --dry-run
+
+# search manually with keywords or authors and send email
 python main.py --keywords "bioinformatics" "genomics"
 ```
 
