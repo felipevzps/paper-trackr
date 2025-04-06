@@ -9,7 +9,7 @@ Tired of missing out on cool papers? `paper-trackr` keeps an eye on **PubMed**, 
 
 - Tracks new articles across [PubMed](https://pubmed.ncbi.nlm.nih.gov/), [EuropePMC](https://europepmc.org/), and [bioRxiv](https://www.biorxiv.org/)
 - Custom filters for keywords and authors
-- Sends daily email alerts `(optional)`
+- Sends email alerts `(optional)`
 - Configurable via a simple YAML file
 - Easy to automate
 
@@ -28,6 +28,9 @@ conda env create -f environment.yml
 python paper-trackr/main.py --dry-run
 
 # search manually with keywords or authors
+python main.py --keywords "bioinformatics" "genomics" --dry-run
+
+# search manually with keywords or authors and send email
 python main.py --keywords "bioinformatics" "genomics"
 ```
 
@@ -36,7 +39,7 @@ python main.py --keywords "bioinformatics" "genomics"
 ## configuration
 
 Use this file to define your search preferences.  
-Take a look at [search_queries_example.yml](https://github.com/felipevzps/paper-trackr/blob/main/paper-trackr/config/search_queries_example.yml):
+Take a look at [search_queries.yml](https://github.com/felipevzps/paper-trackr/blob/main/paper-trackr/config/search_queries.yml):
 
 ```bash
 - authors: []
@@ -52,10 +55,10 @@ Take a look at [search_queries_example.yml](https://github.com/felipevzps/paper-
 ## e-mail alerts (optional)
 
 To enable email alerts, create the `accounts.yml` file with your google app password.  
-Take a look at [accounts_example.yml](https://github.com/felipevzps/paper-trackr/blob/main/paper-trackr/config/accounts_example.yml):
+Take a look at [accounts.yml](https://github.com/felipevzps/paper-trackr/blob/main/paper-trackr/config/accounts.yml):
 
 ```bash
-accounts_example.yml
+# file: paper-trackr/config/accounts.yml
 sender:
   email: your_email@gmail.com
   password: your_google_app_password
