@@ -1,4 +1,6 @@
 __pycache__/
+cron/
+run-paper-trackr.sh
 accounts.yml
 history.csv
 articles.db
