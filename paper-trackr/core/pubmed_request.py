@@ -1,15 +1,26 @@
 import requests
+from datetime import datetime, timedelta
 
 def search_pubmed(keywords, authors):
+    today = datetime.today()
+    thirty_days_ago = today - timedelta(days=30)
+    
+    # format date in the pubmed format
+    start_date = thirty_days_ago.strftime('%Y/%m/%d')
+    end_date = today.strftime('%Y/%m/%d')
+    
     # create query with keyword and author fields
     keyword_query = ' AND '.join(keywords)
     author_query = ' AND '.join([f'{author}[AU]' for author in authors])
-    
+
     full_query_parts = []
     if keyword_query:
         full_query_parts.append(keyword_query)
     if author_query:
         full_query_parts.append(author_query)
+
+    # filter date using PDAT (published date)
+    full_query_parts.append(f'("{start_date}"[PDAT] : "{end_date}"[PDAT])')
 
     full_query = ' AND '.join(full_query_parts)
 
@@ -44,6 +55,5 @@ def search_pubmed(keywords, authors):
                     'source': 'PubMed'
                 })
 
-    #print(f"[PubMed] found papers: {len(articles)}")
     return articles
 
