@@ -58,7 +58,7 @@ To enable email alerts, create the `accounts.yml` file with your google app pass
 Take a look at [accounts.yml](https://github.com/felipevzps/paper-trackr/blob/main/paper-trackr/config/accounts.yml):
 
 ```bash
-accounts_example.yml
+# file: paper-trackr/config/accounts.yml
 sender:
   email: your_email@gmail.com
   password: your_google_app_password
