@@ -10,7 +10,7 @@ def check_biorxiv_feeds(keywords, authors):
     # create string with keywords in the bioRxiv format 
     subject = "+".join([kw.replace(" ", "_") for kw in keywords])
     url = f"http://connect.biorxiv.org/biorxiv_xml.php?subject={subject}"
-    print(f"Parsing feed: {url}")
+    #print(f"Parsing feed: {url}")
 
     # parse feed
     feed = feedparser.parse(url)
