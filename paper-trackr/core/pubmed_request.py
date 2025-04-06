@@ -1,17 +1,18 @@
 import requests
 from datetime import datetime, timedelta
+import xml.etree.ElementTree as ET
 
 def search_pubmed(keywords, authors):
     today = datetime.today()
     thirty_days_ago = today - timedelta(days=30)
     
-    # format date in the pubmed format
-    start_date = thirty_days_ago.strftime('%Y/%m/%d')
-    end_date = today.strftime('%Y/%m/%d')
+    # format date in the pubmed format 
+    start_date = thirty_days_ago.strftime("%Y/%m/%d")
+    end_date = today.strftime("%Y/%m/%d")
     
     # create query with keyword and author fields
-    keyword_query = ' AND '.join(keywords)
-    author_query = ' AND '.join([f'{author}[AU]' for author in authors])
+    keyword_query = " AND ".join(keywords)
+    author_query = " AND ".join([f"{author}[AU]" for author in authors])
 
     full_query_parts = []
     if keyword_query:
@@ -21,39 +22,41 @@ def search_pubmed(keywords, authors):
 
     # filter date using PDAT (published date)
     full_query_parts.append(f'("{start_date}"[PDAT] : "{end_date}"[PDAT])')
-
-    full_query = ' AND '.join(full_query_parts)
+    full_query = " AND ".join(full_query_parts)
 
     url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
     params = {
-        'db': 'pubmed',
-        'term': full_query,
-        'retmode': 'json',
-        'retmax': 10
+        "db": "pubmed",
+        "term": full_query,
+        "retmode": "json",
+        "retmax": 10
     }
 
     r = requests.get(url, params=params)
-    ids = r.json().get('esearchresult', {}).get('idlist', [])
+    ids = r.json().get("esearchresult", {}).get("idlist", [])
 
     articles = []
     if ids:
-        summary_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
+        fetch_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
         params = {
-            'db': 'pubmed',
-            'id': ','.join(ids),
-            'retmode': 'json'
+            "db": "pubmed",
+            "id": ",".join(ids),
+            "retmode": "xml"
         }
-        r = requests.get(summary_url, params=params)
-        results = r.json().get('result', {})
 
-        for uid in ids:
-            data = results.get(uid)
-            if data:
-                articles.append({
-                    'title': data.get('title', 'No title'),
-                    'link': f"https://pubmed.ncbi.nlm.nih.gov/{uid}/",
-                    'source': 'PubMed'
-                })
+        r = requests.get(fetch_url, params=params)
+        root = ET.fromstring(r.content)
+
+        for article in root.findall(".//PubmedArticle"):
+            title = article.findtext(".//ArticleTitle", default="")
+            abstract = article.findtext(".//Abstract/AbstractText", default="")
+            pmid = article.findtext(".//PMID", default="")
+
+            articles.append({
+                "title": title,
+                "abstract": abstract,
+                "link": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/",
+                "source": "PubMed"
+            })
 
     return articles
-
