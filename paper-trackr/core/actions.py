@@ -35,7 +35,6 @@ def main():
         accounts = yaml.safe_load(f)
 
     sender_email = accounts["sender"]["email"]
-    receiver_email = accounts["receiver"]["email"]
     password = accounts["sender"]["password"]
  
     init_db()
@@ -78,4 +77,6 @@ def main():
             filtered_articles.append(art)
 
     if not args.dry_run and filtered_articles:
-        send_email(filtered_articles, sender_email, receiver_email, password)
+        for receiver in accounts["receiver"]:
+            receiver_email = receiver["email"]
+            send_email(filtered_articles, sender_email, receiver_email, password)
