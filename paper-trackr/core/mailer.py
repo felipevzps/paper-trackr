@@ -18,9 +18,12 @@ def generate_article_html(articles):
         clean_abstract = re.sub(r"<.*?>", "", abstract).strip()
 
         if clean_abstract.lower().startswith("background"):
-            formatted_abstract = f'<p style="font-size: 16px;">{abstract}</p>'
+            formatted_abstract = f'<p style="font-size: 16px; text-align: justify;">{abstract}</p>'
         else:
-            formatted_abstract = f'<p style="font-size: 16px;"><h4>Background</h4>{abstract}</p>'
+            formatted_abstract = (
+                    '<h4 style="margin-bottom: 5px;">Background</h4>'
+                    f'<p style="font-size: 16px; text-align: justify;">{abstract}</p>'
+            )
 
         article_html = f"""
             <div style="margin-bottom: 30px;">
