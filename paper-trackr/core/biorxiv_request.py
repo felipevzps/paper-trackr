@@ -18,7 +18,7 @@ def check_biorxiv_feeds(keywords, authors):
     articles = []
 
     for entry in feed.entries:
-        print(entry.get("description", ""))
+        #print(entry.get("description", ""))
         #published = entry.get("published_parsed") or entry.get("updated_parsed")
         #if not published:
         #    continue
