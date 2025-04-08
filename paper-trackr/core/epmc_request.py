@@ -3,11 +3,11 @@ from datetime import datetime, timedelta
 
 # API source: https://europepmc.org/RestfulWebService
 
-def search_epmc(keywords, authors):
-    # get date from the last 30 days
+def search_epmc(keywords, authors, days):
+    # get date from the last N days
     today = datetime.today()
-    thirty_days_ago = today - timedelta(days=30)
-    start_str = thirty_days_ago.strftime("%Y-%m-%d")
+    days_ago = today - timedelta(days)
+    start_str = days_ago.strftime("%Y-%m-%d")
     end_str = today.strftime("%Y-%m-%d")
 
     query_parts = []
@@ -18,7 +18,7 @@ def search_epmc(keywords, authors):
     for author in authors:
         query_parts.append(f'AUTH:"{author}"')
     
-    # filter publications by the last 30 days
+    # filter publications by the last N days
     query_parts.append(f"FIRST_PDATE:[{start_str} TO {end_str}]")
 
     query = " AND ".join(query_parts)

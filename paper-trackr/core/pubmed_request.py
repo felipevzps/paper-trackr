@@ -2,12 +2,12 @@ import requests
 from datetime import datetime, timedelta
 import xml.etree.ElementTree as ET
 
-def search_pubmed(keywords, authors):
+def search_pubmed(keywords, authors, days):
     today = datetime.today()
-    thirty_days_ago = today - timedelta(days=30)
+    days_ago = today - timedelta(days)
     
     # format date in the pubmed format 
-    start_date = thirty_days_ago.strftime("%Y/%m/%d")
+    start_date = days_ago.strftime("%Y/%m/%d")
     end_date = today.strftime("%Y/%m/%d")
     
     # create query with keyword and author fields
