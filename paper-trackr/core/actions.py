@@ -22,11 +22,11 @@ def save_search_queries(queries):
 
 def main():
     
-    parser = argparse.ArgumentParser(prog="paper-trackr", description="track recent papres from PubMed, EuropePMC and bioRxiv")
-    parser.add_argument("--dry-run", action="store_true", help="run withhout sending email")
+    parser = argparse.ArgumentParser(prog="paper-trackr", description="track recent papers from PubMed, EuropePMC and bioRxiv")
+    parser.add_argument("--dry-run", action="store_true", help="run without sending email")
     parser.add_argument("--limit", type=int, default=10, help="limit the number of requested papers")
     parser.add_argument("--keywords", nargs="+", help="personalized keywords")
-    parser.add_argument("--authors", nargs="+", help="personalized author search")
+    parser.add_argument("--authors", nargs="+", help="author name")
     parser.add_argument("--sources", nargs="+", choices=["bioRxiv", "PubMed", "EuropePMC"])
     args = parser.parse_args()
     
