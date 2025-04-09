@@ -107,7 +107,14 @@ paper-trackr configure
 >Google App Password is not your Gmail password.  
 >You must generate an App Password via your Google Account → [Create App Password](https://support.google.com/accounts/answer/185833?hl=en)  
 
-Once configured, all future `paper-trackr` runs will send results via email!
+Once configured, all future `paper-trackr` runs will send results via email!  
+See an example below:
+
+![](https://github.com/felipevzps/paper-trackr/blob/main/images/email_example.png)
+
+>[!NOTE]
+>`paper-trackr` does not have a published paper.    
+>This image is just an **illustrative example** of the type of email you’ll receive using `paper-trackr`, but with **real papers**, recently published in sources like PubMed, EuropePMC, and bioRxiv!
 
 ---
 
