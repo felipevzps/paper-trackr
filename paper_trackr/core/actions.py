@@ -28,15 +28,11 @@ def save_search_queries(queries):
         yaml.dump(queries, f, allow_unicode=True) # use utf-8
 
 def create_query_interactively():
-    keywords_input = input("Enter keywords (comma-separated, or leave empty): ").strip()
-    keywords = [kw.strip() for kw in keywords_input.split(",") if kw.strip()]
-
-    authors_input = input("Enter authors (comma-separated, or leave empty): ").strip()
-    authors = [a.strip() for a in authors_input.split(",") if a.strip()]
-
-    sources_input = input("Enter sources (bioRxiv, PubMed, EuropePMC — comma-separated, or leave empty for all): ").strip()
-    sources = sources_input.split() if sources_input else ["bioRxiv", "PubMed", "EuropePMC"]
-    
+    keywords = [k.strip() for k in input("Enter keywords (comma-separated, or leave empty): ").strip().split(",") if k.strip()]
+    authors = [a.strip() for a in input("Enter authors (comma-separated, or leave empty): ").strip().split(",") if a.strip()]
+    sources = [s.strip() for s in input("Enter sources (bioRxiv, PubMed, EuropePMC — comma-separated, or leave empty for all): ").strip().split(",") if s.strip()]
+    if not sources:
+        sources = ["bioRxiv", "PubMed", "EuropePMC"]
     return {
         "keywords": keywords,
         "authors": authors,
