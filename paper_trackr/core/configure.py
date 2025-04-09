@@ -2,7 +2,8 @@ import questionary
 import yaml
 import os
 
-CONFIG_PATH = "paper-trackr/config/accounts.yml"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CONFIG_PATH = os.path.join(BASE_DIR, "../config/accounts.yml")
 
 def configure_email_accounts():
     print("Welcome to paper-trackr email configuration")
@@ -35,4 +36,4 @@ def configure_email_accounts():
     with open(CONFIG_PATH, "w") as f:
         yaml.dump(config, f)
 
-    print("Configuration saved to paper-trackr/config/accounts.yml")
+    print(f"Configuration saved to {CONFIG_PATH}")

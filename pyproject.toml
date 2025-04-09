@@ -1,0 +1,37 @@
+[project]
+name = "paper-trackr"
+version = "0.1.0"
+description = "track recent papers from PubMed, EuropePMC and bioRxiv."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+authors = [
+  {name = "Felipe Vaz Peres", email = "felipe.vzps@gmail.com"}
+]
+dependencies = [
+    "feedparser>=6.0.11",
+    "PyYAML>=6.0.2",
+    "questionary>=2.1.0",
+    "requests>=2.32.3"
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"paper_trackr" = ["database/*.*", "templates/*.*"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[project.urls]
+Homepage = "https://github.com/felipevzps/paper-trackr"
+Issues =  "https://github.com/felipevzps/paper-trackr/issues"
+
+[project.scripts]
+paper-trackr = "paper_trackr.main:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

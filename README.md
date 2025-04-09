@@ -1,5 +1,5 @@
 # paper-trackr
-[![Status](https://img.shields.io/badge/status-active-success.svg)]() [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![PyPI version](https://img.shields.io/pypi/v/paper-trackr)](https://pypi.org/project/paper-trackr/) [![Status](https://img.shields.io/badge/status-active-success.svg)]() [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Tired of missing out on cool papers? `paper-trackr` keeps an eye on **PubMed**, **EuropePMC**, and **bioRxiv** for you, scanning recent papers and sending to you via email. Just set your keywords and authors, and let it do the digging!
 

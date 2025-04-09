@@ -1,8 +1,12 @@
 import smtplib
 import re
+import os
 from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+HTML_TEMPLATE = os.path.join(BASE_DIR, "../templates/newsletter_template.html")
 
 def load_template(path):
     with open(path, "r", encoding="utf-8") as f:
@@ -54,7 +58,7 @@ def send_email(articles, sender_email, receiver_email, password):
     msg["To"] = receiver_email
     msg["X-Entity-Ref-ID"] = "null" # avoid grouping/threading emails by gmail (each email should apper as a new email, even if it has the same subject)
 
-    html_body = compose_email_body("paper-trackr/templates/newsletter_template.html", articles)
+    html_body = compose_email_body(HTML_TEMPLATE, articles)
     msg.attach(MIMEText(html_body, "html"))
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:

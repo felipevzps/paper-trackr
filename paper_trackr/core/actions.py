@@ -1,16 +1,17 @@
-from core.db_utils import init_db, save_article, is_article_new, log_history
-from core.biorxiv_request import check_biorxiv_feeds
-from core.pubmed_request import search_pubmed
-from core.epmc_request import search_epmc
-from core.mailer import send_email
-from core.configure import configure_email_accounts
+from paper_trackr.core.db_utils import init_db, save_article, is_article_new, log_history
+from paper_trackr.core.biorxiv_request import check_biorxiv_feeds
+from paper_trackr.core.pubmed_request import search_pubmed
+from paper_trackr.core.epmc_request import search_epmc
+from paper_trackr.core.mailer import send_email
+from paper_trackr.core.configure import configure_email_accounts
 import yaml
 import argparse
 import os
 import sys
 
-CONFIG_PATH = "paper-trackr/config/accounts.yml"
-SEARCH_QUERIES_FILE = "paper-trackr/config/search_queries.yml"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CONFIG_PATH = os.path.join(BASE_DIR, "../config/accounts.yml")
+SEARCH_QUERIES_FILE = os.path.join(BASE_DIR, "../config/search_queries.yml")
 
 # load queries from search_queries.yaml
 def load_search_queries(silent=False):
@@ -107,7 +108,7 @@ def main():
                 with open(SEARCH_QUERIES_FILE, "w", encoding="utf-8") as f:
                     yaml.dump([], f)
 
-            create_now = input("Would you like to create your first search query now? (y/N): ").strip().lower()
+            create_now = input("Would you like to create a new search query? (y/N): ").strip().lower()
             if create_now == "y":
                 new_query = create_query_interactively()
                 queries.append(new_query)
@@ -123,7 +124,7 @@ def main():
     # check email configuration only if NOT in dry-run
     if not args.dry_run:
         if not os.path.exists(CONFIG_PATH):
-            print("Email configuration file not found: paper-trackr/config/accounts.yml")
+            print(f"Email configuration file not found: {CONFIG_PATH}")
             print("Run `paper-trackr configure` to set up your email account.")
             sys.exit(1)
 
