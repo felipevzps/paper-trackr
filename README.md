@@ -118,9 +118,46 @@ See an example below:
 
 ---
 
+# automating daily paper tracking (optional)
+
+To get the most out of `paper-trackr`, you can automate its execution on a daily basis.  
+By creating a simple bash script and scheduling it with [cron](https://en.wikipedia.org/wiki/Cron), you’ll receive fresh paper updates every day!  
+
+Example script: `run-paper-trackr.sh`
+
+```bash
+# create a script to run paper-trackr
+mkdir paper-trackr-logs && cd paper-trackr-logs 
+vi run-paper-trackr.sh
+
+# content of the script:
+#!/bin/bash
+
+# run paper-trackr (default days is 3)
+paper-trackr --days 1
+
+# make sure your script is executable:
+chmod +x run-paper-trackr.sh
+```
+
+Now, you just have to schedule it with a `cron table file`:
+```bash
+# open your cron table file
+crontab -e
+
+# add a line like this to run the script every day at 5 AM:
+0 5 * * * /path/to/paper-trackr-logs/run-paper-trackr.sh >> /path/to/paper-trackr-logs/logs/cron.log 2>&1
+```
+
+This ensures that `paper-trackr` will check for new papers every morning and email you if configured!
+
+---
+
 # contact 
 
 For questions, feel free to open an [issue](https://github.com/felipevzps/paper-trackr/issues).
+
+---
 
 # license
 
