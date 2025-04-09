@@ -5,3 +5,8 @@ accounts.yml
 history.csv
 articles.db
 search_queries.yml
+
+# build artifacts
+build/
+dist/
+*.egg-info/
