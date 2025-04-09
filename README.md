@@ -44,9 +44,9 @@ paper-trackr manage --add
 
 # example: creating a query to search for bioinformatics + genomics related papers in bioRxiv
 Would you like to create a new search query? (y/N): y
-Enter keywords (separated by space, or leave empty): bioinformatis genomics
-Enter authors (separated by space, or leave empty):
-Enter sources (bioRxiv, PubMed, EuropePMC — separated by space, or leave empty for all): bioRxiv
+Enter keywords (comma-separated, or leave empty): bioinformatics, genomics
+Enter authors (comma-separated, or leave empty):
+Enter sources (bioRxiv, PubMed, EuropePMC — comma-separated, or leave empty for all): bioRxiv
 Search query saved.
 ```
 >[!NOTE]
