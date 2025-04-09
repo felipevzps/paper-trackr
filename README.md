@@ -101,7 +101,7 @@ paper-trackr configure
 # example
 ? Enter sender email: your_email@gmail.com
 ? Enter sender password (Google App Password): *******************
-? Enter receiver emails (comma-separated): recipient1@gmail.com recipient2@university.edu
+? Enter receiver emails (comma-separated): recipient1@gmail.com, recipient2@university.edu
 ```
 >[!IMPORTANT]
 >Google App Password is not your Gmail password.  
