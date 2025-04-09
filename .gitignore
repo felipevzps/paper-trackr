@@ -6,6 +6,9 @@ history.csv
 articles.db
 search_queries.yml
 
+# release script
+release.sh
+
 # build artifacts
 build/
 dist/

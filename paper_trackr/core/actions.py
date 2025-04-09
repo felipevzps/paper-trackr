@@ -44,7 +44,7 @@ def format_authors(authors):
     return ", ".join(authors) if authors else "none"
 
 def main():
-    parser = argparse.ArgumentParser(prog="paper-trackr", description="track recent papers from PubMed, EuropePMC and bioRxiv")
+    parser = argparse.ArgumentParser(prog="paper-trackr", description="Track recently published papers from PubMed, EuropePMC and bioRxiv.")
     subparsers = parser.add_subparsers(dest="command")
 
     # subcommand: configure
