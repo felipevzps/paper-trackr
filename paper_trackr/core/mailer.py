@@ -63,6 +63,7 @@ def send_email(articles, sender_email, receiver_email, password, save_html=False
     msg.attach(MIMEText(html_body, "html"))
     
     if save_html:
+        os.makedirs(os.path.dirname(NEWSLETTER_DIR), exist_ok=True)
         print(f"Saving html to {NEWSLETTER_DIR}")
         with open(NEWSLETTER_DIR, "w", encoding="utf-8") as f:
             f.write(html_body)
