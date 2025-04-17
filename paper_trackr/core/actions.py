@@ -63,6 +63,7 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="run without sending email")
     parser.add_argument("--limit", type=int, default=10, help="limit the number of requested papers")
     parser.add_argument("--days", type=int, default=3, help="search publications in the last N days")
+    parser.add_argument("--save_html", action="store_true", help="save html page before sending email")
     args = parser.parse_args()
 
     # configure
@@ -179,7 +180,7 @@ def main():
         print(f"\nSending {len(filtered_articles)} new paper(s) via email...")
         for receiver in accounts["receiver"]:
             receiver_email = receiver["email"]
-            send_email(filtered_articles, sender_email, receiver_email, password)
+            send_email(filtered_articles, sender_email, receiver_email, password, save_html=args.save_html)
         print("Emails sent successfully!\n")
     elif not args.dry_run and not filtered_articles:
         print("No new paper(s) found - no emails were sent.\n")
