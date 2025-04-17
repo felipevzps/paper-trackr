@@ -7,6 +7,7 @@ from email.mime.multipart import MIMEMultipart
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 HTML_TEMPLATE = os.path.join(BASE_DIR, "../templates/newsletter_template.html")
+NEWSLETTER_DIR = os.path.join(BASE_DIR, "../newsletter/paper-trackr_newsletter.html")
 
 def load_template(path):
     with open(path, "r", encoding="utf-8") as f:
@@ -48,7 +49,7 @@ def compose_email_body(template_path, articles):
     articles_html = generate_article_html(articles)
     return template.replace("{{ date }}", today).replace("{{ articles_html }}", articles_html)
 
-def send_email(articles, sender_email, receiver_email, password):
+def send_email(articles, sender_email, receiver_email, password, save_html=False):
     if not articles:
         return
 
@@ -60,6 +61,11 @@ def send_email(articles, sender_email, receiver_email, password):
 
     html_body = compose_email_body(HTML_TEMPLATE, articles)
     msg.attach(MIMEText(html_body, "html"))
+    
+    if save_html:
+        print(f"Saving html to {NEWSLETTER_DIR}")
+        with open(NEWSLETTER_DIR, "w", encoding="utf-8") as f:
+            f.write(html_body)
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(sender_email, password)
