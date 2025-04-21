@@ -1,18 +1,17 @@
 import smtplib
 import re
-import os
 from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+#from paper_trackr.config.global_settings import HTML_TEMPLATE, NEWSLETTER_OUTPUT
+from config.global_settings import TEMPLATE_FILE, NEWSLETTER_OUTPUT
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-HTML_TEMPLATE = os.path.join(BASE_DIR, "../templates/newsletter_template.html")
-NEWSLETTER_DIR = os.path.join(BASE_DIR, "../newsletter/paper-trackr_newsletter.html")
-
+# read html template
 def load_template(path):
     with open(path, "r", encoding="utf-8") as f:
         return f.read()
 
+# generate the html body for each new paper found in a specific date
 def generate_article_html(articles):
     html_parts = []
 
@@ -43,13 +42,15 @@ def generate_article_html(articles):
 
     return "\n".join(html_parts)
 
+# create updated html body
 def compose_email_body(template_path, articles):
     today = datetime.now().strftime("%A, %d %B %Y")
     template = load_template(template_path)
     articles_html = generate_article_html(articles)
     return template.replace("{{ date }}", today).replace("{{ articles_html }}", articles_html)
 
-def send_email(articles, sender_email, receiver_email, password, save_html=False):
+# send newsletter email with new papers
+def send_email(articles, sender_email, receiver_email, password):
     if not articles:
         return
 
@@ -59,15 +60,17 @@ def send_email(articles, sender_email, receiver_email, password, save_html=False
     msg["To"] = receiver_email
     msg["X-Entity-Ref-ID"] = "null" # avoid grouping/threading emails by gmail (each email should apper as a new email, even if it has the same subject)
 
-    html_body = compose_email_body(HTML_TEMPLATE, articles)
+    html_body = compose_email_body(TEMPLATE_FILE, articles)
     msg.attach(MIMEText(html_body, "html"))
-    
-    if save_html:
-        os.makedirs(os.path.dirname(NEWSLETTER_DIR), exist_ok=True)
-        print(f"Saving html to {NEWSLETTER_DIR}")
-        with open(NEWSLETTER_DIR, "w", encoding="utf-8") as f:
-            f.write(html_body)
-
+     
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, msg.as_string())
+
+# save newsletter html using template
+def save_newsletter_html(articles):
+    html_body = compose_email_body(TEMPLATE_FILE, articles)
+    NEWSLETTER_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    print(f"Saving html to {NEWSLETTER_OUTPUT}")
+    with open(NEWSLETTER_OUTPUT, "w", encoding="utf-8") as f:
+        f.write(html_body)
