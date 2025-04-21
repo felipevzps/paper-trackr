@@ -1,12 +1,8 @@
 import sqlite3
 import csv
-import os
-from datetime import datetime
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-DB_FILE = os.path.join(BASE_DIR, "../database/articles.db")
-HISTORY_FILE = os.path.join(BASE_DIR, "../database/history.csv")
+from pathlib import Path
+from datetime import datetime 
+from paper_trackr.config.global_settings import DB_FILE, HISTORY_FILE 
 
 def init_db():
     conn = sqlite3.connect(DB_FILE)
@@ -48,11 +44,10 @@ def save_article(title, abstract, source, link):
         })
 
 def log_history(article):
-    write_header = not os.path.exists(HISTORY_FILE)
     with open(HISTORY_FILE, mode="a", newline="") as csvfile:
         fieldnames = ["date", "title", "abstract", "source", "link"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        if write_header:
+        if not Path(HISTORY_FILE).exists():
             writer.writeheader()
         writer.writerow({
             "date": datetime.now().strftime("%Y-%m-%d %H:%M"),

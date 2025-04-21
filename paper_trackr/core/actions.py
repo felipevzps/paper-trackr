@@ -1,50 +1,79 @@
-from paper_trackr.core.db_utils import init_db, save_article, is_article_new, log_history
-from paper_trackr.core.biorxiv_request import check_biorxiv_feeds
-from paper_trackr.core.pubmed_request import search_pubmed
-from paper_trackr.core.epmc_request import search_epmc
-from paper_trackr.core.mailer import send_email
-from paper_trackr.core.configure import configure_email_accounts
 import yaml
 import argparse
-import os
 import sys
+from pathlib import Path
+from paper_trackr.core.db_utils import init_db, save_article, is_article_new, log_history
+from paper_trackr.core.biorxiv_request import search_biorxiv
+from paper_trackr.core.pubmed_request import search_pubmed
+from paper_trackr.core.epmc_request import search_epmc
+from paper_trackr.core.mailer import send_email, save_newsletter_html
+from paper_trackr.core.configure_email import configure_email_accounts
+from paper_trackr.core.manage_query import load_search_queries, format_keywords, format_authors, manage_user_queries
+from paper_trackr.config.global_settings import ACCOUNTS_FILE, SEARCH_QUERIES_FILE
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIG_PATH = os.path.join(BASE_DIR, "../config/accounts.yml")
-SEARCH_QUERIES_FILE = os.path.join(BASE_DIR, "../config/search_queries.yml")
+# handle logic for subcommand "configure"
+def handle_configure():
+    configure_email_accounts()
+    sys.exit(0)
 
-# load queries from search_queries.yaml
-def load_search_queries(silent=False):
-    if not os.path.exists(SEARCH_QUERIES_FILE):
-        if not silent:
-            print("No saved search queries found.")
-        return []
-    with open(SEARCH_QUERIES_FILE) as f:
-        return yaml.safe_load(f) or []
+# handle logic for subcommand manage
+def handle_manage(args):
+    manage_user_queries(args)
+    sys.exit(0)
+    
+# get email configuration if not in dry-run mode
+def get_email_config():
+    if not Path(ACCOUNTS_FILE).exists():
+        print(f"Email configuration file not found: {ACCOUNTS_FILE}")
+        print("Run `paper-trackr configure` to set up your email account.")
+        sys.exit(1)
 
-def save_search_queries(queries):
-    os.makedirs(os.path.dirname(SEARCH_QUERIES_FILE), exist_ok=True)
-    with open(SEARCH_QUERIES_FILE, "w", encoding="utf-8") as f:
-        yaml.dump(queries, f, allow_unicode=True) # use utf-8
+    with open(ACCOUNTS_FILE) as f:
+        accounts = yaml.safe_load(f)
 
-def create_query_interactively():
-    keywords = [k.strip() for k in input("Enter keywords (comma-separated, or leave empty): ").strip().split(",") if k.strip()]
-    authors = [a.strip() for a in input("Enter authors (comma-separated, or leave empty): ").strip().split(",") if a.strip()]
-    sources = [s.strip() for s in input("Enter sources (bioRxiv, PubMed, EuropePMC — comma-separated, or leave empty for all): ").strip().split(",") if s.strip()]
-    if not sources:
-        sources = ["bioRxiv", "PubMed", "EuropePMC"]
-    return {
-        "keywords": keywords,
-        "authors": authors,
-        "sources": sources
-    }
+    return accounts["sender"]["email"], accounts["sender"]["password"], accounts["receiver"]
 
-def format_keywords(keywords):
-    return ", ".join(keywords) if keywords else "none"
+# search for articles using saved queries
+def run_search(search_queries, limit, days):
+    new_articles = []
+    print("Starting paper-trackr search...")
 
-def format_authors(authors):
-    return ", ".join(authors) if authors else "none"
+    for i, query in enumerate(search_queries, start=1):
+        keywords = query["keywords"]
+        authors = query["authors"]
+        sources = query["sources"]
 
+        print(f"\nQuery {i}:")
+        print(f"    keywords: {format_keywords(keywords)}")
+        print(f"    authors: {format_authors(authors)}")
+        print(f"    sources: {', '.join(sources)}\n")
+
+        if "bioRxiv" in sources:
+            print("    Searching bioRxiv...")
+            new_articles.extend(search_biorxiv(keywords, authors)[:limit])
+
+        if "PubMed" in sources:
+            print("    Searching PubMed...")
+            new_articles.extend(search_pubmed(keywords, authors, days)[:limit])
+
+        if "EuropePMC" in sources:
+            print("    Searching EuropePMC...")
+            new_articles.extend(search_epmc(keywords, authors, days)[:limit])
+    
+    print("\nSearch finished.\n")
+    return new_articles
+
+# filter and store new articles
+def process_articles(new_articles):
+    filtered_articles = []
+    for art in new_articles:
+        if is_article_new(art["link"], art["title"]):
+            save_article(art["title"], art["abstract"], art.get("source", "unknown"), art["link"])
+            print(f'    [Saved] {art["title"]} ({art.get("source", "unknown")})')
+            filtered_articles.append(art)
+    return filtered_articles
+
+# main entry point
 def main():
     parser = argparse.ArgumentParser(prog="paper-trackr", description="Track recently published papers from PubMed, EuropePMC and bioRxiv.")
     subparsers = parser.add_subparsers(dest="command")
@@ -66,126 +95,46 @@ def main():
     parser.add_argument("--save_html", action="store_true", help="save html page before sending email")
     args = parser.parse_args()
 
-    # configure
+    # if running using subcomand configure
     if args.command == "configure":
-        configure_email_accounts()
-        sys.exit(0)
-
-    # manage
+        handle_configure()
+    
+    # if running using subcommand manage
     elif args.command == "manage":
-        queries = load_search_queries(silent=True)
-
-        if args.list:
-            if not queries:
-                print("No queries saved.")
-            else:
-                print("Saved queries:")
-                for i, q in enumerate(queries, start=1):
-                    print(f"  [{i}] keywords: {format_keywords(q['keywords'])} | authors: {format_authors(q['authors'])} | sources: {', '.join(q['sources'])}")
-
-        elif args.delete is not None:
-            index = args.delete - 1
-            if 0 <= index < len(queries):
-                removed = queries.pop(index)
-                save_search_queries(queries)
-                print(f"Query #{args.delete} removed.")
-            else:
-                print(f"Invalid index: {args.delete}")
-
-        elif args.clear:
-            if not queries:
-                print("No saved search queries found to delete.")
-            else:
-                confirm = input("Are you sure you want to delete all saved queries? (y/N): ").strip().lower()
-                if confirm == "y":
-                    save_search_queries([])
-                    print("All queries deleted.")
-                else:
-                    print("Operation canceled.")
-
-        elif args.add:
-            if not queries and not os.path.exists(SEARCH_QUERIES_FILE):
-                print("No saved search queries found.")
-                print(f"Creating empty query file at: {SEARCH_QUERIES_FILE}")
-                os.makedirs(os.path.dirname(SEARCH_QUERIES_FILE), exist_ok=True)
-                with open(SEARCH_QUERIES_FILE, "w", encoding="utf-8") as f:
-                    yaml.dump([], f)
-
-            create_now = input("Would you like to create a new search query? (y/N): ").strip().lower()
-            if create_now == "y":
-                new_query = create_query_interactively()
-                queries.append(new_query)
-                save_search_queries(queries)
-                print("Search query saved.")
-            else:
-                print("No queries added.")
-
-        else:
+        if not (args.list or args.delete or args.clear or args.add):
             print("No action specified. Use --add, --list, --delete N, or --clear.")
-        sys.exit(0)
-
-    # check email configuration only if NOT in dry-run
+            parser_manage.print_help()
+            sys.exit(0)
+        else:
+            handle_manage(args)
+   
+    # get email configuration if not running with dry-run
     if not args.dry_run:
-        if not os.path.exists(CONFIG_PATH):
-            print(f"Email configuration file not found: {CONFIG_PATH}")
-            print("Run `paper-trackr configure` to set up your email account.")
-            sys.exit(1)
-
-        with open(CONFIG_PATH) as f:
-            accounts = yaml.safe_load(f)
-
-        sender_email = accounts["sender"]["email"]
-        password = accounts["sender"]["password"]
+        sender_email, password, receivers = get_email_config()
 
     init_db()
-    new_articles = []
-
     search_queries = load_search_queries()
-
-    print("Starting paper-trackr search...")
-
-    for i, query in enumerate(search_queries, start=1):
-        keywords = query["keywords"]
-        authors = query["authors"]
-        sources = query["sources"]
-
-        print(f"\nQuery {i}:")
-        print(f"    keywords: {format_keywords(keywords)}")
-        print(f"    authors: {format_authors(authors)}")
-        print(f"    sources: {', '.join(sources)}\n")
-
-        if "bioRxiv" in sources:
-            print(f"    Searching bioRxiv...")
-            new_articles.extend(check_biorxiv_feeds(keywords, authors)[:args.limit])
-
-        if "PubMed" in sources:
-            print(f"    Searching PubMed...")
-            new_articles.extend(search_pubmed(keywords, authors, args.days)[:args.limit])
-
-        if "EuropePMC" in sources:
-            print(f"    Searching EuropePMC...")
-            new_articles.extend(search_epmc(keywords, authors, args.days)[:args.limit])
-
-    print("\nSearch finished.\n")
-
-    # save and send new papers 
-    filtered_articles = []
-    for art in new_articles:
-        if is_article_new(art["link"], art["title"]):
-            save_article(art["title"], art["abstract"], art.get("source", "unknown"), art["link"])
-            print(f'    [Saved] {art["title"]} ({art.get("source", "unknown")})')
-            filtered_articles.append(art)
-
+    new_articles = run_search(search_queries, args.limit, args.days)
+    filtered_articles = process_articles(new_articles)
+    
+    # send email if found new papers
     if not args.dry_run and filtered_articles:
         print(f"\nSending {len(filtered_articles)} new paper(s) via email...")
-        for receiver in accounts["receiver"]:
-            receiver_email = receiver["email"]
-            send_email(filtered_articles, sender_email, receiver_email, password, save_html=args.save_html)
+        for receiver in receivers:
+            send_email(filtered_articles, sender_email, receiver["email"], password)
         print("Emails sent successfully!\n")
+    
+    # --save_html: save html if found new papers
+    if args.save_html and filtered_articles:
+        save_newsletter_html(filtered_articles)
+
+    # print message if dont found new papers
     elif not args.dry_run and not filtered_articles:
         print("No new paper(s) found - no emails were sent.\n")
+    
+    # --dry-run: print message if user is running with dry-run
     elif args.dry_run:
         if filtered_articles:
             print(f"\ndry-run: {len(filtered_articles)} new paper(s) would have been sent.\n")
         else:
-            print(f"dry-run: no new paper(s) found - nothing would have been sent.\n")
+            print("dry-run: no new paper(s) found - nothing would have been sent.\n")

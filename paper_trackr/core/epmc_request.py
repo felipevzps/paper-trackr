@@ -2,9 +2,10 @@ import requests
 from datetime import datetime, timedelta
 
 # API source: https://europepmc.org/RestfulWebService
+EPMC_API_URL = "https://www.ebi.ac.uk/europepmc/webservices/rest/search"
 
-def search_epmc(keywords, authors, days):
-    # get date from the last N days
+# build query for the last N days
+def build_epmc_query(keywords, authors, days):
     today = datetime.today()
     days_ago = today - timedelta(days)
     start_str = days_ago.strftime("%Y-%m-%d")
@@ -14,27 +15,31 @@ def search_epmc(keywords, authors, days):
 
     if keywords:
         query_parts += keywords
-
+    
     for author in authors:
         query_parts.append(f'AUTH:"{author}"')
     
-    # filter publications by the last N days
+    # filter publications by the last N days (PDATE)
     query_parts.append(f"FIRST_PDATE:[{start_str} TO {end_str}]")
 
-    query = " AND ".join(query_parts)
+    return " AND ".join(query_parts)
 
-    url = "https://www.ebi.ac.uk/europepmc/webservices/rest/search"
+# fetch Europe PMC API 
+def fetch_epmc_results(query):
     params = {
         "query": query,
         "format": "json",
         "pageSize": 10,
         "resultType": "core" # returns full metadata
     }
+    response = requests.get(EPMC_API_URL, params=params)
+    return response.json().get("resultList", {}).get("result", [])
 
-    r = requests.get(url, params=params)
+# parse Europe PMC API results
+def parse_epmc_results(results):
     articles = []
-    #print(r.json().get('resultList', {}).get('result', []))
-    for result in r.json().get("resultList", {}).get("result", []):
+
+    for result in results:
         article_id = result.get("id", "")
         title = result.get("title", "")
         abstract = result.get("abstractText", "")
@@ -54,7 +59,13 @@ def search_epmc(keywords, authors, days):
             "title": title,
             "link": link,
             "abstract": abstract,
-            "source": source, 
+            "source": source,
         })
 
     return articles
+
+# search papers from the last N days using Europe PMC API
+def search_epmc(keywords, authors, days):
+    query = build_epmc_query(keywords, authors, days)
+    results = fetch_epmc_results(query)
+    return parse_epmc_results(results)

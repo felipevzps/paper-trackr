@@ -1,15 +1,14 @@
-import questionary
 import yaml
-import os
+import questionary
+from pathlib import Path
+from paper_trackr.config.global_settings import ACCOUNTS_FILE
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIG_PATH = os.path.join(BASE_DIR, "../config/accounts.yml")
-
+# configure sender and receiver emails 
 def configure_email_accounts():
     print("Welcome to paper-trackr email configuration")
 
     # verify if accounts.yaml exists
-    if os.path.exists(CONFIG_PATH):
+    if Path(ACCOUNTS_FILE).exists():
         overwrite = questionary.confirm("An existing config was found. Overwrite?").ask()
         if not overwrite:
             print("Configuration canceled.")
@@ -32,8 +31,8 @@ def configure_email_accounts():
     }
 
     # save configuration 
-    os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
-    with open(CONFIG_PATH, "w") as f:
+    ACCOUNTS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with open(ACCOUNTS_FILE, "w") as f:
         yaml.dump(config, f)
 
-    print(f"Configuration saved to {CONFIG_PATH}")
+    print(f"Configuration saved to {ACCOUNTS_FILE}")
