@@ -3,8 +3,7 @@ import re
 from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-#from paper_trackr.config.global_settings import HTML_TEMPLATE, NEWSLETTER_OUTPUT
-from config.global_settings import TEMPLATE_FILE, NEWSLETTER_OUTPUT
+from paper_trackr.config.global_settings import TEMPLATE_FILE, NEWSLETTER_OUTPUT
 
 # read html template
 def load_template(path):
