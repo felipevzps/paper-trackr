@@ -14,3 +14,12 @@ release.sh
 build/
 dist/
 *.egg-info/
+
+# scitldr vocab, model and inferences
+vocab.bpe
+encoder.json
+dict.txt
+scitldr_bart-xsum.tldr-ao.pt
+paper-trackr.tldr 
+paper-trackr_abstracts-bin/
+paper-trackr_abstracts/
