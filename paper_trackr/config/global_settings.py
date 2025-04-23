@@ -19,3 +19,17 @@ TEMPLATE_FILE = TEMPLATES_DIR / "newsletter_template.html"
 
 # newsletter directory
 NEWSLETTER_OUTPUT = BASE_DIR / "newsletter" / "paper-trackr_newsletter.html"
+
+# scitldr paths
+SCITLDR_DIR = BASE_DIR / "scitldr"
+SCITLDR_DATA_DIR = SCITLDR_DIR / "data"
+SCITLDR_MODEL_DIR = SCITLDR_DIR / "model"
+SCITLDR_OUT_DIR = SCITLDR_DIR / "tldr"
+SCITLDR_DATA_SUBDIR = SCITLDR_DATA_DIR / "paper-trackr_abstracts"
+SCITLDR_SOURCE_FILE = "paper-trackr_abstracts.source" 
+SCITLDR_TEST_FILE = "paper-trackr.tldr"
+SCITLDR_BART_XSUM = "scitldr_bart-xsum.tldr-ao.pt"
+
+# scitldr optimal decoder params
+BART_XSUM_BEAM = "2"
+BART_XSUM_LENPAN = "0.8"

@@ -12,6 +12,7 @@ def init_db():
                     date_added TIMESTAMP,
                     title TEXT,
                     abstract TEXT,
+                    tldr TEXT,
                     source TEXT,
                     link TEXT UNIQUE
                 )''')
@@ -27,25 +28,26 @@ def is_article_new(link, title):
     conn.close()
     return result is None
 
-def save_article(title, abstract, source, link):
+def save_article(title, abstract, source, link, tldr=None):
     if is_article_new(link, title):
         conn = sqlite3.connect(DB_FILE)
         c = conn.cursor()
-        c.execute("INSERT INTO articles (date_added, title, abstract, source, link) VALUES (?, ?, ?, ?, ?)",
-                  (datetime.now(), title, abstract, source, link))
+        c.execute("INSERT INTO articles (date_added, title, abstract, tldr, source, link) VALUES (?, ?, ?, ?, ?, ?)",
+                  (datetime.now(), title, abstract, tldr, source, link))
         conn.commit()
         conn.close()
 
         log_history({
             "title": title,
             "abstract": abstract,
+            "tldr": tldr,
             "source": source,
             "link": link
         })
 
 def log_history(article):
     with open(HISTORY_FILE, mode="a", newline="") as csvfile:
-        fieldnames = ["date", "title", "abstract", "source", "link"]
+        fieldnames = ["date", "title", "abstract", "tldr", "source", "link"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         if not Path(HISTORY_FILE).exists():
             writer.writeheader()
@@ -53,6 +55,19 @@ def log_history(article):
             "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
             "title": article["title"],
             "abstract": article["abstract"],
+            "tldr": article.get("tldr", ""),
             "source": article.get("source", "unknown"),
             "link": article["link"],
         })
+
+def update_tldr_in_storage(articles):
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+
+    for art in articles:
+        if art.get("tldr"):
+            # update tldr in the database
+            c.execute("UPDATE articles SET tldr = ? WHERE link = ?", (art["tldr"], art["link"]))
+
+    conn.commit()
+    conn.close()
