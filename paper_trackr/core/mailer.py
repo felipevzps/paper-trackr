@@ -19,14 +19,27 @@ def generate_article_html(articles):
         # some abstracts startswith "Background", so im trying to avoid duplicates in the html template
         # by removing any html tags in the abstract, then checking if it startswith "Background", then adapting the template to deal with the abstract content for each paper
         clean_abstract = re.sub(r"<.*?>", "", abstract).strip()
+        
+        # include tldr
+        tldr_html = ""
 
-        if clean_abstract.lower().startswith("background"):
-            formatted_abstract = f'<p style="font-size: 16px; text-align: justify;">{abstract}</p>'
-        else:
-            formatted_abstract = (
-                    '<h4 style="margin-bottom: 5px;">Background</h4>'
-                    f'<p style="font-size: 16px; text-align: justify;">{abstract}</p>'
+        if "tldr" in a and a["tldr"]:
+            tldr_html = (
+                f'<p style="font-size: 16px; text-align: justify; margin-bottom: 10px;">'
+                f'<span style="font-weight: bold; font-size: 16px;">tl;dr:</span> {a["tldr"]}</p>'
             )
+
+        # abstract 
+        if clean_abstract.lower().startswith("background"):
+            abstract_html = f'<p style="font-size: 16px; text-align: justify;">{abstract}</p>'
+        else:
+            abstract_html = (
+                    '<p style="font-size: 16px; text-align: justify;">'
+                    f'<span style="font-weight: bold; font-size: 16px;">Abstract:</span> {abstract}</p>' 
+            )
+        
+        # merge tldr + abstract 
+        formatted_abstract = tldr_html + abstract_html 
 
         article_html = f"""
             <div style="margin-bottom: 30px;">
