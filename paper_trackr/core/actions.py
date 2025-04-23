@@ -2,13 +2,14 @@ import yaml
 import argparse
 import sys
 from pathlib import Path
-from paper_trackr.core.db_utils import init_db, save_article, is_article_new, log_history
+from paper_trackr.core.db_utils import init_db, save_article, is_article_new, log_history, update_tldr_in_storage
 from paper_trackr.core.biorxiv_request import search_biorxiv
 from paper_trackr.core.pubmed_request import search_pubmed
 from paper_trackr.core.epmc_request import search_epmc
 from paper_trackr.core.mailer import send_email, save_newsletter_html
 from paper_trackr.core.configure_email import configure_email_accounts
 from paper_trackr.core.manage_query import load_search_queries, format_keywords, format_authors, manage_user_queries
+from paper_trackr.core.generate_tldr import run_scitldr_inference
 from paper_trackr.config.global_settings import ACCOUNTS_FILE, SEARCH_QUERIES_FILE
 
 # handle logic for subcommand "configure"
@@ -68,7 +69,7 @@ def process_articles(new_articles):
     filtered_articles = []
     for art in new_articles:
         if is_article_new(art["link"], art["title"]):
-            save_article(art["title"], art["abstract"], art.get("source", "unknown"), art["link"])
+            save_article(title=art["title"], abstract=art["abstract"], tldr=art.get("tldr"), source=art.get("source", "unknown"), link=art["link"])
             print(f'    [Saved] {art["title"]} ({art.get("source", "unknown")})')
             filtered_articles.append(art)
     return filtered_articles
@@ -93,6 +94,7 @@ def main():
     parser.add_argument("--limit", type=int, default=10, help="limit the number of requested papers")
     parser.add_argument("--days", type=int, default=3, help="search publications in the last N days")
     parser.add_argument("--save_html", action="store_true", help="save html page before sending email")
+    parser.add_argument("--tldr", action="store_true", help="generate tldr for abstracts")
     args = parser.parse_args()
 
     # if running using subcomand configure
@@ -117,6 +119,12 @@ def main():
     new_articles = run_search(search_queries, args.limit, args.days)
     filtered_articles = process_articles(new_articles)
     
+    # --tldr: generate tldr for abstracts
+    if args.tldr and filtered_articles:
+        print("\nStarting TLDR inference...")
+        run_scitldr_inference(filtered_articles)
+        update_tldr_in_storage(filtered_articles)
+
     # send email if found new papers
     if not args.dry_run and filtered_articles:
         print(f"\nSending {len(filtered_articles)} new paper(s) via email...")
