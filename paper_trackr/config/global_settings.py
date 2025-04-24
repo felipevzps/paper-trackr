@@ -30,6 +30,8 @@ SCITLDR_SOURCE_FILE = "paper-trackr_abstracts.source"
 SCITLDR_TEST_FILE = "paper-trackr.tldr"
 SCITLDR_BART_XSUM = "scitldr_bart-xsum.tldr-ao.pt"
 
-# scitldr optimal decoder params
-BART_XSUM_BEAM = "2"
-BART_XSUM_LENPAN = "0.8"
+# scitldr optimal decoder params for paper-trackr
+BEAM_SIZE = "2"
+LENGTH_PENALTY = "1"
+MAX_LENGTH = "60"
+MIN_LENGTH = "10"
