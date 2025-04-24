@@ -42,8 +42,9 @@ def parse_epmc_results(results):
     for result in results:
         article_id = result.get("id", "")
         title = result.get("title", "")
-        abstract = result.get("abstractText", "")
+        author = result.get("authorString", "")
         source = result.get("source", "")
+        abstract = result.get("abstractText", "")
         doi = result.get("doi", "")
 
         if source == "MED":
@@ -57,9 +58,10 @@ def parse_epmc_results(results):
 
         articles.append({
             "title": title,
-            "link": link,
-            "abstract": abstract,
+            "author": author,
             "source": source,
+            "abstract": abstract,
+            "link": link,
         })
 
     return articles
