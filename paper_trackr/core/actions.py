@@ -69,7 +69,7 @@ def process_articles(new_articles):
     filtered_articles = []
     for art in new_articles:
         if is_article_new(art["link"], art["title"]):
-            save_article(title=art["title"], abstract=art["abstract"], tldr=art.get("tldr"), source=art.get("source", "unknown"), link=art["link"])
+            save_article(title=art["title"], author="".join(art["author"]), source=art.get("source", "unknown"), tldr=art.get("tldr"), abstract=art["abstract"], link=art["link"])
             print(f'    [Saved] {art["title"]} ({art.get("source", "unknown")})')
             filtered_articles.append(art)
     return filtered_articles
