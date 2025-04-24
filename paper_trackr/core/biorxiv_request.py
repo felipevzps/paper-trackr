@@ -17,18 +17,19 @@ def parse_biorxiv_results(feed, authors):
 
     for entry in feed.entries:
         title = entry.get("title", "")
-        link = entry.get("link", "")
+        author = entry.get("author", "")
         abstract = entry.get("description", "")
-        author_line = entry.get("author", "")
+        link = entry.get("link", "")
 
-        author_match = not authors or any(a.lower() in author_line.lower() for a in authors)
+        author_match = not authors or any(a.lower() in author.lower() for a in authors)
 
         if author_match:
             articles.append({
                 "title": title,
-                "link": link,
-                "abstract": abstract,
+                "author":  author,
                 "source": "bioRxiv",
+                "abstract": abstract,
+                "link": link,
             })
 
     return articles
