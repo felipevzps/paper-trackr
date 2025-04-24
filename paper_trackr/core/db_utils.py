@@ -11,9 +11,10 @@ def init_db():
                     id INTEGER PRIMARY KEY,
                     date_added TIMESTAMP,
                     title TEXT,
-                    abstract TEXT,
-                    tldr TEXT,
+                    author TEXT,
                     source TEXT,
+                    tldr TEXT,
+                    abstract TEXT,
                     link TEXT UNIQUE
                 )''')
     conn.commit()
@@ -28,35 +29,37 @@ def is_article_new(link, title):
     conn.close()
     return result is None
 
-def save_article(title, abstract, source, link, tldr=None):
+def save_article(title, author, source, abstract, link, tldr=None):
     if is_article_new(link, title):
         conn = sqlite3.connect(DB_FILE)
         c = conn.cursor()
-        c.execute("INSERT INTO articles (date_added, title, abstract, tldr, source, link) VALUES (?, ?, ?, ?, ?, ?)",
-                  (datetime.now(), title, abstract, tldr, source, link))
+        c.execute("INSERT INTO articles (date_added, title, author, source, tldr, abstract, link) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                  (datetime.now(), title, author, source, tldr, abstract, link))
         conn.commit()
         conn.close()
 
         log_history({
             "title": title,
-            "abstract": abstract,
-            "tldr": tldr,
+            "author": author, 
             "source": source,
+            "tldr": tldr,
+            "abstract": abstract,
             "link": link
         })
 
 def log_history(article):
     with open(HISTORY_FILE, mode="a", newline="") as csvfile:
-        fieldnames = ["date", "title", "abstract", "tldr", "source", "link"]
+        fieldnames = ["date", "title", "author", "source", "tldr", "abstract", "link"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         if not Path(HISTORY_FILE).exists():
             writer.writeheader()
         writer.writerow({
             "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
             "title": article["title"],
-            "abstract": article["abstract"],
-            "tldr": article.get("tldr", ""),
+            "author": article["author"],
             "source": article.get("source", "unknown"),
+            "tldr": article.get("tldr", ""),
+            "abstract": article["abstract"],
             "link": article["link"],
         })
 
