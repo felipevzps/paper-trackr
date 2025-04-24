@@ -56,12 +56,21 @@ def parse_pubmed_results(root):
         title = article.findtext(".//ArticleTitle", default="")
         abstract = article.findtext(".//Abstract/AbstractText", default="")
         pmid = article.findtext(".//PMID", default="")
-
+        
+        authors = [] 
+        for author in article.findall(".//AuthorList/Author"):
+            first = author.findtext("ForeName", default="")
+            last = author.findtext("LastName", default="")
+            full_name = f"{first} {last}".strip()
+            if full_name:
+                authors.append(full_name)
+        
         articles.append({
             "title": title,
+            "author": ", ".join(authors),
+            "source": "PubMed",
             "abstract": abstract,
             "link": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/",
-            "source": "PubMed"
         })
     return articles
 
