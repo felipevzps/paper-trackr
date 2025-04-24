@@ -1,6 +1,6 @@
 import subprocess
-from paper_trackr.config.global_settings import SCITLDR_DIR, SCITLDR_DATA_DIR, SCITLDR_MODEL_DIR, SCITLDR_OUT_DIR, SCITLDR_DATA_SUBDIR, SCITLDR_SOURCE_FILE, SCITLDR_TEST_FILE, SCITLDR_BART_XSUM, BART_XSUM_BEAM, BART_XSUM_LENPAN
 from pathlib import Path
+from paper_trackr.config.global_settings import SCITLDR_DIR, SCITLDR_DATA_DIR, SCITLDR_MODEL_DIR, SCITLDR_OUT_DIR, SCITLDR_DATA_SUBDIR, SCITLDR_SOURCE_FILE, SCITLDR_TEST_FILE, SCITLDR_BART_XSUM, BEAM_SIZE, LENGTH_PENALTY, MAX_LENGTH, MIN_LENGTH
 
 def prepare_abstract_source_file(articles):
     source_path = SCITLDR_DATA_SUBDIR / SCITLDR_SOURCE_FILE
@@ -71,8 +71,10 @@ def run_scitldr_inference(articles):
             "--source_fname", SCITLDR_SOURCE_FILE,
             "--datadir", str(SCITLDR_DATA_DIR / SCITLDR_DATA_SUBDIR),
             "--outdir", str(SCITLDR_OUT_DIR),
-            "--beam", BART_XSUM_BEAM,
-            "--lenpen", BART_XSUM_LENPAN,
+            "--beam", BEAM_SIZE,
+            "--lenpen", LENGTH_PENALTY,
+            "--max_len_b", MAX_LENGTH,
+            "--min_len", MIN_LENGTH,
             "--test_fname", SCITLDR_TEST_FILE
         ], cwd=SCITLDR_DIR, check=True)
     
