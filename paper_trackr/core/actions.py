@@ -68,7 +68,8 @@ def run_search(search_queries, limit, days):
 def process_articles(new_articles):
     filtered_articles = []
     for art in new_articles:
-        if is_article_new(art["link"], art["title"]):
+        # check if has abstract and is new  
+        if art.get("abstract") and is_article_new(art["link"], art["title"]):
             save_article(title=art["title"], author="".join(art["author"]), source=art.get("source", "unknown"), tldr=art.get("tldr"), abstract=art["abstract"], link=art["link"])
             print(f'    [Saved] {art["title"]} ({art.get("source", "unknown")})')
             filtered_articles.append(art)
