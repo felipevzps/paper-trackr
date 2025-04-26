@@ -44,6 +44,7 @@ def parse_epmc_results(results):
         title = result.get("title", "")
         author = result.get("authorString", "")
         source = result.get("source", "")
+        date = result.get("firstPublicationDate", "")
         abstract = result.get("abstractText", "")
         doi = result.get("doi", "")
 
@@ -60,6 +61,7 @@ def parse_epmc_results(results):
             "title": title,
             "author": author,
             "source": source,
+            "date": date,
             "abstract": abstract,
             "link": link,
         })
