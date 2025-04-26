@@ -18,6 +18,7 @@ def parse_biorxiv_results(feed, authors):
     for entry in feed.entries:
         title = entry.get("title", "")
         author = entry.get("author", "")
+        date = entry.get("date", "")
         abstract = entry.get("description", "")
         link = entry.get("link", "")
 
@@ -28,6 +29,7 @@ def parse_biorxiv_results(feed, authors):
                 "title": title,
                 "author":  author,
                 "source": "bioRxiv",
+                "date": date,
                 "abstract": abstract,
                 "link": link,
             })
