@@ -56,6 +56,13 @@ def parse_pubmed_results(root):
         title = article.findtext(".//ArticleTitle", default="")
         abstract = article.findtext(".//Abstract/AbstractText", default="")
         pmid = article.findtext(".//PMID", default="")
+
+        # get published date (YYYY-MM-DD)
+        pub_date_elem = article.find(".//Article/ArticleDate")
+        year = pub_date_elem.findtext("Year", default="")
+        month = pub_date_elem.findtext("Month", default="")
+        day = pub_date_elem.findtext("Day", default="")
+        date = "-".join(filter(None, [year, month, day]))
         
         authors = [] 
         for author in article.findall(".//AuthorList/Author"):
@@ -69,6 +76,7 @@ def parse_pubmed_results(root):
             "title": title,
             "author": ", ".join(authors),
             "source": "PubMed",
+            "date": date, 
             "abstract": abstract,
             "link": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/",
         })
