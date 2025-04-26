@@ -1,4 +1,6 @@
 import sqlite3
+import re 
+import html 
 import csv
 from pathlib import Path
 from datetime import datetime 
@@ -21,6 +23,36 @@ def init_db():
     conn.commit()
     conn.close()
 
+
+def clean_and_validate_abstract(abstract):
+# decode HTML entities (e.g., &nbsp;, &amp;)
+    abstract = html.unescape(abstract)
+
+    # remove specific tags and their content (e.g., <h2>Background</h2>, <strong>Important</strong>)
+    # this regex matches opening and closing pairs like <h1>...</h1>, <h2>...</h2>, <b>...</b>, <strong>...</strong>
+    # e.g.:
+    #   - <(h\d|b|strong)[^>]*> : match opening tag of h1-h6, b, or strong, with optional attributes
+    #   - .*?                   : match any content inside the tag
+    #   - </\1>                 : match the corresponding closing tag (same tag name as captured before)
+    #   - flags:
+    #       - IGNORECASE        : match both <H2> and <h2>, etc.
+    #       - DOTALL            : allow '.' to match newlines
+    abstract = re.sub(r'<(h\d|b|strong)[^>]*>.*?</\1>', '', abstract, flags=re.IGNORECASE | re.DOTALL)
+
+    # remove all remaining HTML tags but keep their inner text
+    # this regex matches any tag like <tag> or <tag attribute="...">
+    abstract = re.sub(r'<[^>]+>', '', abstract)
+
+    # normalize whitespace (replace multiple spaces, tabs, and newlines with a single space)
+    abstract = re.sub(r'\s+', ' ', abstract).strip()
+
+    # rnsure that the abstract ends properly with a sentence-ending punctuation mark (., !, ?)
+    if not re.search(r'[.!?]\s*$', abstract):
+        return None
+
+    return abstract
+
+
 def is_article_new(link, title):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
@@ -30,28 +62,37 @@ def is_article_new(link, title):
     conn.close()
     return result is None
 
-def save_article(title, author, source, abstract, link, publication_date=None, tldr=None):
-    if is_article_new(link, title):
-        conn = sqlite3.connect(DB_FILE)
-        c = conn.cursor()
-        c.execute("INSERT INTO articles (date_added, title, author, source, publication_date, tldr, abstract, link) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                  (datetime.now(), title, author, source, publication_date, tldr, abstract, link))
-        
-        article_id = c.lastrowid
-        conn.commit()
-        conn.close()
 
-        log_history({
-            "title": title,
-            "author": author, 
-            "source": source,
-            "publication_date": publication_date,
-            "tldr": tldr,
-            "abstract": abstract,
-            "link": link
-        })
+def save_article(title, author, source, abstract, link, publication_date=None, tldr=None):
+
+    # clean and validate abstract 
+    clean_abstract = clean_and_validate_abstract(abstract)
+
+    if not clean_abstract and is_article_new(link, title):
+        return None 
+        
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("INSERT INTO articles (date_added, title, author, source, publication_date, tldr, abstract, link) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+              (datetime.now(), title, author, source, publication_date, tldr, clean_abstract, link))
+        
+    article_id = c.lastrowid
+    conn.commit()
+    conn.close()
+    print(f'    [Saved] {title} | {source}')
+
+    log_history({
+        "title": title,
+        "author": author, 
+        "source": source,
+        "publication_date": publication_date,
+        "tldr": tldr,
+        "abstract": clean_abstract,
+        "link": link
+    })
 
     return article_id
+
 
 def log_history(article):
     with open(HISTORY_FILE, mode="a", newline="") as csvfile:
@@ -70,6 +111,7 @@ def log_history(article):
             "link": article["link"],
         })
 
+
 def update_tldr_in_storage(articles):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
@@ -81,6 +123,7 @@ def update_tldr_in_storage(articles):
 
     conn.commit()
     conn.close()
+
 
 def get_articles_by_publication_date(ids, descending=True):
     conn = sqlite3.connect(DB_FILE)
