@@ -71,7 +71,6 @@ def process_articles(new_articles):
         # check if paper has abstract and if paper is new 
         if art.get("abstract") and is_article_new(art["link"], art["title"]):
             article_id = save_article(title=art["title"], author="".join(art["author"]), source=art.get("source", "unknown"), publication_date=art.get("date"), tldr=art.get("tldr"), abstract=art["abstract"], link=art["link"])
-            print(f'    [Saved] {art["title"]} ({art.get("source", "unknown")})')
             saved_articles_ids.append(article_id)
     return saved_articles_ids
 
