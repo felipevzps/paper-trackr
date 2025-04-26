@@ -46,10 +46,16 @@ def generate_article_html(articles):
                 <h2 style="color: #000000; font-size: 22px;">{a["title"]}</h2>
                 <p style="font-size: 14px; text-align: justify; margin-top: -10px; margin-bottom: 10px;"> {a["author"]}</p>
                 
-                <p style="font-size: 16px; display: flex; justify-content: space-between;">
-                    <em>Source: {a["source"]}</em>
-                    <em><span>Published: {a["date"]}</span></em>
-                </p>
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="font-size:16px; margin-bottom: 12px;">
+                    <tr>
+                        <td align="left" style="font-style: italic;">
+                            Source: {a["source"]}
+                        </td>
+                        <td align="right" style="font-style: italic;">
+                            Published: {a["date"]}
+                        </td>
+                    </tr>
+                </table>
 
                 {formatted_abstract}
                 <p><a href="{a["link"]}" style="color: #1a0dab; font-size: 16px;">Read full paper</a></p>
