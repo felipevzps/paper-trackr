@@ -13,6 +13,7 @@ def init_db():
                     title TEXT,
                     author TEXT,
                     source TEXT,
+                    publication_date DATE,
                     tldr TEXT,
                     abstract TEXT,
                     link TEXT UNIQUE
@@ -29,12 +30,12 @@ def is_article_new(link, title):
     conn.close()
     return result is None
 
-def save_article(title, author, source, abstract, link, tldr=None):
+def save_article(title, author, source, abstract, link, publication_date=None, tldr=None):
     if is_article_new(link, title):
         conn = sqlite3.connect(DB_FILE)
         c = conn.cursor()
-        c.execute("INSERT INTO articles (date_added, title, author, source, tldr, abstract, link) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                  (datetime.now(), title, author, source, tldr, abstract, link))
+        c.execute("INSERT INTO articles (date_added, title, author, source, publication_date, tldr, abstract, link) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                  (datetime.now(), title, author, source, publication_date, tldr, abstract, link))
         conn.commit()
         conn.close()
 
@@ -42,6 +43,7 @@ def save_article(title, author, source, abstract, link, tldr=None):
             "title": title,
             "author": author, 
             "source": source,
+            "publication_date": publication_date,
             "tldr": tldr,
             "abstract": abstract,
             "link": link
@@ -49,7 +51,7 @@ def save_article(title, author, source, abstract, link, tldr=None):
 
 def log_history(article):
     with open(HISTORY_FILE, mode="a", newline="") as csvfile:
-        fieldnames = ["date", "title", "author", "source", "tldr", "abstract", "link"]
+        fieldnames = ["date", "title", "author", "source", "publication_date", "tldr", "abstract", "link"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         if not Path(HISTORY_FILE).exists():
             writer.writeheader()
@@ -58,6 +60,7 @@ def log_history(article):
             "title": article["title"],
             "author": article["author"],
             "source": article.get("source", "unknown"),
+            "publication_date": article.get("publication_date", ""),
             "tldr": article.get("tldr", ""),
             "abstract": article["abstract"],
             "link": article["link"],
