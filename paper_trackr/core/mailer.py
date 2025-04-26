@@ -52,7 +52,7 @@ def generate_article_html(articles):
                             Source: {a["source"]}
                         </td>
                         <td align="right" style="font-style: italic;">
-                            Published: {a["date"]}
+                            Published: {a["publication_date"]}
                         </td>
                     </tr>
                 </table>

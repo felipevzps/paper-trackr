@@ -36,6 +36,8 @@ def save_article(title, author, source, abstract, link, publication_date=None, t
         c = conn.cursor()
         c.execute("INSERT INTO articles (date_added, title, author, source, publication_date, tldr, abstract, link) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                   (datetime.now(), title, author, source, publication_date, tldr, abstract, link))
+        
+        article_id = c.lastrowid
         conn.commit()
         conn.close()
 
@@ -48,6 +50,8 @@ def save_article(title, author, source, abstract, link, publication_date=None, t
             "abstract": abstract,
             "link": link
         })
+
+    return article_id
 
 def log_history(article):
     with open(HISTORY_FILE, mode="a", newline="") as csvfile:
@@ -77,3 +81,16 @@ def update_tldr_in_storage(articles):
 
     conn.commit()
     conn.close()
+
+def get_articles_by_publication_date(ids, descending=True):
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row 
+    c = conn.cursor()
+
+    order = "DESC" if descending else "ASC"
+    placeholders = ','.join('?' for _ in ids)
+    query = f"SELECT * FROM articles WHERE id IN ({placeholders}) ORDER BY publication_date {order}"
+    c.execute(query, ids)
+    articles = [dict(row) for row in c.fetchall()]
+    conn.close()
+    return articles

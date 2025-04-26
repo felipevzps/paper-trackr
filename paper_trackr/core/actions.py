@@ -2,7 +2,7 @@ import yaml
 import argparse
 import sys
 from pathlib import Path
-from paper_trackr.core.db_utils import init_db, save_article, is_article_new, log_history, update_tldr_in_storage
+from paper_trackr.core.db_utils import init_db, save_article, is_article_new, log_history, update_tldr_in_storage, get_articles_by_publication_date
 from paper_trackr.core.biorxiv_request import search_biorxiv
 from paper_trackr.core.pubmed_request import search_pubmed
 from paper_trackr.core.epmc_request import search_epmc
@@ -66,14 +66,14 @@ def run_search(search_queries, limit, days):
 
 # filter and store new articles
 def process_articles(new_articles):
-    filtered_articles = []
+    saved_articles_ids = []
     for art in new_articles:
-        # check if has abstract and is new  
+        # check if paper has abstract and if paper is new 
         if art.get("abstract") and is_article_new(art["link"], art["title"]):
-            save_article(title=art["title"], author="".join(art["author"]), source=art.get("source", "unknown"), publication_date=art.get("date"), tldr=art.get("tldr"), abstract=art["abstract"], link=art["link"])
+            article_id = save_article(title=art["title"], author="".join(art["author"]), source=art.get("source", "unknown"), publication_date=art.get("date"), tldr=art.get("tldr"), abstract=art["abstract"], link=art["link"])
             print(f'    [Saved] {art["title"]} ({art.get("source", "unknown")})')
-            filtered_articles.append(art)
-    return filtered_articles
+            saved_articles_ids.append(article_id)
+    return saved_articles_ids
 
 # main entry point
 def main():
@@ -118,7 +118,8 @@ def main():
     init_db()
     search_queries = load_search_queries()
     new_articles = run_search(search_queries, args.limit, args.days)
-    filtered_articles = process_articles(new_articles)
+    saved_article_ids = process_articles(new_articles)
+    filtered_articles = get_articles_by_publication_date(saved_article_ids)
     
     # --tldr: generate tldr for abstracts
     if args.tldr and filtered_articles:
