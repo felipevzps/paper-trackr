@@ -12,7 +12,7 @@ def fetch_biorxiv_results(url):
     return feedparser.parse(url)
 
 # parse bioRxiv results
-def parse_biorxiv_results(feed, authors):
+def parse_biorxiv_results(feed, authors, keywords):
     articles = []
 
     for entry in feed.entries:
@@ -32,6 +32,7 @@ def parse_biorxiv_results(feed, authors):
                 "date": date,
                 "abstract": abstract,
                 "link": link,
+                "keyword": keywords,
             })
 
     return articles
@@ -40,4 +41,4 @@ def parse_biorxiv_results(feed, authors):
 def search_biorxiv(keywords, authors):
     url = build_biorxiv_query(keywords)
     feed = fetch_biorxiv_results(url)
-    return parse_biorxiv_results(feed, authors)
+    return parse_biorxiv_results(feed, authors, keywords)
