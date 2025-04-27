@@ -36,7 +36,7 @@ def fetch_epmc_results(query):
     return response.json().get("resultList", {}).get("result", [])
 
 # parse Europe PMC API results
-def parse_epmc_results(results):
+def parse_epmc_results(results, keywords):
     articles = []
 
     for result in results:
@@ -64,6 +64,7 @@ def parse_epmc_results(results):
             "date": date,
             "abstract": abstract,
             "link": link,
+            "keyword": keywords,
         })
 
     return articles
@@ -72,4 +73,4 @@ def parse_epmc_results(results):
 def search_epmc(keywords, authors, days):
     query = build_epmc_query(keywords, authors, days)
     results = fetch_epmc_results(query)
-    return parse_epmc_results(results)
+    return parse_epmc_results(results, keywords)
