@@ -46,7 +46,7 @@ def generate_article_html(articles):
         
         #color = keyword_to_color(a["keyword"])
         color = keyword_to_pastel_color(a["keyword"])
-        keyword_html = f'<span style="background-color: {color}; color: #000000; padding: 4px 8px; border-radius: 12px; font-size: 14px; box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);">{a["keyword"]}</span>'
+        keyword_html = f'<span style="background-color: {color}; color: #000000; padding: 4px 8px; border-radius: 12px; font-size: 14px; box-shadow: 1px 1px 3px rgba(0, 0, 0, 1);">{a["keyword"]}</span>'
          
         #bg_color = keyword_to_pastel_color(a["keyword"])
         #text_color = get_contrast_text_color(bg_color)
