@@ -4,11 +4,13 @@ from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from paper_trackr.config.global_settings import TEMPLATE_FILE, NEWSLETTER_OUTPUT
+from paper_trackr.core.generate_color import keyword_to_color, keyword_to_pastel_color, get_contrast_text_color
 
 # read html template
 def load_template(path):
     with open(path, "r", encoding="utf-8") as f:
         return f.read()
+
 
 # generate the html body for each new paper found in a specific date
 def generate_article_html(articles):
@@ -41,11 +43,20 @@ def generate_article_html(articles):
         # merge tldr + abstract 
         formatted_abstract = tldr_html + abstract_html 
 
+        
+        #color = keyword_to_color(a["keyword"])
+        color = keyword_to_pastel_color(a["keyword"])
+        keyword_html = f'<span style="background-color: {color}; color: #000000; padding: 4px 8px; border-radius: 12px; font-size: 14px; box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);">{a["keyword"]}</span>'
+         
+        #bg_color = keyword_to_pastel_color(a["keyword"])
+        #text_color = get_contrast_text_color(bg_color)
+        #keyword_html = f'<span style="background-color: {bg_color}; color: {text_color}; padding: 3px 8px; margin: 2px; font-size: 0.85em;">{a["keyword"]}</span>'
+
         article_html = f"""
             <div style="margin-bottom: 30px;">
                 <h2 style="color: #000000; font-size: 22px;">{a["title"]}</h2>
                 <p style="font-size: 14px; text-align: justify; margin-top: -10px; margin-bottom: 10px;"> {a["author"]}</p>
-                
+         
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="font-size:16px; margin-bottom: 12px;">
                     <tr>
                         <td align="left" style="font-style: italic;">
@@ -56,7 +67,8 @@ def generate_article_html(articles):
                         </td>
                     </tr>
                 </table>
-
+            
+                <p>{keyword_html}</p>
                 {formatted_abstract}
                 <p><a href="{a["link"]}" style="color: #1a0dab; font-size: 16px;">Read full paper</a></p>
             </div>
@@ -66,12 +78,14 @@ def generate_article_html(articles):
 
     return "\n".join(html_parts)
 
+
 # create updated html body
 def compose_email_body(template_path, articles):
     today = datetime.now().strftime("%A, %d %B %Y")
     template = load_template(template_path)
     articles_html = generate_article_html(articles)
     return template.replace("{{ date }}", today).replace("{{ articles_html }}", articles_html)
+
 
 # send newsletter email with new papers
 def send_email(articles, sender_email, receiver_email, password):
@@ -90,6 +104,7 @@ def send_email(articles, sender_email, receiver_email, password):
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, msg.as_string())
+
 
 # save newsletter html using template
 def save_newsletter_html(articles):

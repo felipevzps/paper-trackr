@@ -50,7 +50,7 @@ def fetch_pubmed_metadata(results):
     return ET.fromstring(response.content)
 
 # parse entrez API results and extract paper abstract and link
-def parse_pubmed_results(root):
+def parse_pubmed_results(root, keywords):
     articles = []
     for article in root.findall(".//PubmedArticle"):
         title = article.findtext(".//ArticleTitle", default="")
@@ -79,6 +79,7 @@ def parse_pubmed_results(root):
             "date": date, 
             "abstract": abstract,
             "link": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/",
+            "keyword": keywords,
         })
     return articles
 
@@ -91,4 +92,4 @@ def search_pubmed(keywords, authors, days):
         return []
 
     xml_root = fetch_pubmed_metadata(results)
-    return parse_pubmed_results(xml_root)
+    return parse_pubmed_results(xml_root, keywords)
