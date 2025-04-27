@@ -18,7 +18,8 @@ def init_db():
                     publication_date DATE,
                     tldr TEXT,
                     abstract TEXT,
-                    link TEXT UNIQUE
+                    link TEXT UNIQUE,
+                    keyword TEXT
                 )''')
     conn.commit()
     conn.close()
@@ -63,7 +64,7 @@ def is_article_new(link, title):
     return result is None
 
 
-def save_article(title, author, source, abstract, link, publication_date=None, tldr=None):
+def save_article(title, author, source, abstract, link, keyword, publication_date=None, tldr=None):
 
     # clean and validate abstract 
     clean_abstract = clean_and_validate_abstract(abstract)
@@ -73,8 +74,12 @@ def save_article(title, author, source, abstract, link, publication_date=None, t
         
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute("INSERT INTO articles (date_added, title, author, source, publication_date, tldr, abstract, link) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-              (datetime.now(), title, author, source, publication_date, tldr, clean_abstract, link))
+
+    # convert list keyword to string
+    keywords_str = ", ".join(keyword)
+
+    c.execute("INSERT INTO articles (date_added, title, author, source, publication_date, tldr, abstract, link, keyword) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+              (datetime.now(), title, author, source, publication_date, tldr, clean_abstract, link, keywords_str))
         
     article_id = c.lastrowid
     conn.commit()
@@ -88,7 +93,8 @@ def save_article(title, author, source, abstract, link, publication_date=None, t
         "publication_date": publication_date,
         "tldr": tldr,
         "abstract": clean_abstract,
-        "link": link
+        "link": link,
+        "keyword": keywords_str,
     })
 
     return article_id
@@ -96,7 +102,7 @@ def save_article(title, author, source, abstract, link, publication_date=None, t
 
 def log_history(article):
     with open(HISTORY_FILE, mode="a", newline="") as csvfile:
-        fieldnames = ["date", "title", "author", "source", "publication_date", "tldr", "abstract", "link"]
+        fieldnames = ["date", "title", "author", "source", "publication_date", "tldr", "abstract", "link", "keyword"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         if not Path(HISTORY_FILE).exists():
             writer.writeheader()
@@ -109,6 +115,7 @@ def log_history(article):
             "tldr": article.get("tldr", ""),
             "abstract": article["abstract"],
             "link": article["link"],
+            "keyword": article["keyword"],
         })
 
 
