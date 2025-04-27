@@ -1,5 +1,8 @@
 # paper-trackr
-[![PyPI version](https://img.shields.io/pypi/v/paper-trackr)](https://pypi.org/project/paper-trackr/) [![Status](https://img.shields.io/badge/status-active-success.svg)]() [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Demo](https://img.shields.io/badge/demo-click%20here-orange.svg)](https://felipevzps.github.io/newsletter/paper-trackr_newsletter.html)
+[![PyPI version](https://img.shields.io/pypi/v/paper-trackr)](https://pypi.org/project/paper-trackr/)
+[![Status](https://img.shields.io/badge/status-active-success.svg)]()
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Tired of missing out on cool papers? `paper-trackr` keeps an eye on **PubMed**, **EuropePMC**, and **bioRxiv** for you, scanning recent papers and sending to you via email. Just set your keywords and authors, and let it do the digging!
 
@@ -18,19 +21,19 @@ Tired of missing out on cool papers? `paper-trackr` keeps an eye on **PubMed**, 
 
 ```bash
 # install the package via pip
-pip install paper-trackr
+$ pip install paper-trackr
 
 # create your first query (e.g., bioinformatics papers in bioRxiv)
-paper-trackr manage --add
+$ paper-trackr manage --add
 
 # search for papers published in the last 3 days (dry-run = don't send email)
-paper-trackr --dry-run --days 3
+$ paper-trackr --dry-run --days 3
 
 # (optional) configure sender/receiver emails for alerts
-paper-trackr configure
+$ paper-trackr configure
 
 # send papers published in the last 3 days by email
-paper-trackr --days 3
+$ paper-trackr --days 3
 ```
 
 ---
@@ -40,7 +43,7 @@ paper-trackr --days 3
 You can create multiple queries using `manage --add`:
 ```bash
 # interactively add a new search query
-paper-trackr manage --add
+$ paper-trackr manage --add
 
 # example: creating a query to search for bioinformatics + genomics related papers in bioRxiv
 Would you like to create a new search query? (y/N): y
@@ -56,7 +59,7 @@ Search query saved.
 You can check your queries using `manage --list`
 ```bash
 # list all saved queries
-paper-trackr manage --list
+$ paper-trackr manage --list
 
 Saved queries:
   [1] keywords: bioinformatics, genomics | authors: none | sources: bioRxiv
@@ -65,14 +68,14 @@ Saved queries:
 You can also delete queries using `manage --delete N`:
 ```bash
 # delete the 1st query
-paper-trackr manage --delete 1
+$ paper-trackr manage --delete 1
 Query #1 removed.
 ```
 
 Or delete all queries using `manage --clear`
 ```bash
 # clear all saved queries (asks for confirmation)
-paper-trackr manage --clear
+$ paper-trackr manage --clear
 
 Are you sure you want to delete all saved queries? (y/N): y
 All queries deleted.
@@ -86,7 +89,7 @@ To receive email alerts, configure sender and receiver emails:
 
 ```bash
 # configure
-paper-trackr configure
+$ paper-trackr configure
 ```
 
 You’ll be prompted to provide:  
@@ -96,7 +99,7 @@ You’ll be prompted to provide:
 
 ```bash
 # configure
-paper-trackr configure
+$ paper-trackr configure
 
 # example
 ? Enter sender email: your_email@gmail.com
@@ -107,14 +110,14 @@ paper-trackr configure
 >Google App Password is not your Gmail password.  
 >You must generate an App Password via your Google Account → [Create App Password](https://support.google.com/accounts/answer/185833?hl=en)  
 
-Once configured, all future `paper-trackr` runs will send results via email!  
-See an example below:
+Once configured, all future `paper-trackr` runs will deliver results directly to your email inbox.  
+See an example below, or [click here to read the latest papers published in bioinformatics.](https://felipevzps.github.io/newsletter/paper-trackr_newsletter.html).
 
 ![](https://github.com/felipevzps/paper-trackr/blob/main/images/email_example.png)
 
 >[!NOTE]
 >`paper-trackr` does not have a published paper.    
->This image is just an **illustrative example** of the type of email you’ll receive using `paper-trackr`, but with **real papers**, recently published in sources like PubMed, EuropePMC, and bioRxiv!
+>This image is just an **illustrative example** of the type of email you’ll receive using `paper-trackr`!
 
 ---
 
@@ -127,8 +130,8 @@ Example script: `run-paper-trackr.sh`
 
 ```bash
 # create a script to run paper-trackr
-mkdir paper-trackr-logs && cd paper-trackr-logs 
-vi run-paper-trackr.sh
+$ mkdir paper-trackr-logs && cd paper-trackr-logs 
+$ vi run-paper-trackr.sh
 
 # content of the script:
 #!/bin/bash
@@ -137,13 +140,13 @@ vi run-paper-trackr.sh
 paper-trackr --days 1
 
 # make sure your script is executable:
-chmod +x run-paper-trackr.sh
+$ chmod +x run-paper-trackr.sh
 ```
 
 Now, you just have to schedule it with a `cron table file`:
 ```bash
 # open your cron table file
-crontab -e
+$ crontab -e
 
 # add a line like this to run the script every day at 5 AM:
 0 5 * * * /path/to/paper-trackr-logs/run-paper-trackr.sh >> /path/to/paper-trackr-logs/logs/cron.log 2>&1
