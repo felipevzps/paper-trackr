@@ -59,9 +59,10 @@ def parse_pubmed_results(root, keywords):
 
         # get published date (YYYY-MM-DD)
         pub_date_elem = article.find(".//Article/ArticleDate")
-        year = pub_date_elem.findtext("Year", default="")
-        month = pub_date_elem.findtext("Month", default="")
-        day = pub_date_elem.findtext("Day", default="")
+        if pub_date_elem is not None: 
+            year = pub_date_elem.findtext("Year", default="")
+            month = pub_date_elem.findtext("Month", default="")
+            day = pub_date_elem.findtext("Day", default="")
         date = "-".join(filter(None, [year, month, day]))
         
         authors = [] 
