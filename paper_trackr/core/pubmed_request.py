@@ -59,12 +59,17 @@ def parse_pubmed_results(root, keywords):
 
         # get published date (YYYY-MM-DD)
         pub_date_elem = article.find(".//Article/ArticleDate")
-        if pub_date_elem is not None: 
-            year = pub_date_elem.findtext("Year", default="")
-            month = pub_date_elem.findtext("Month", default="")
-            day = pub_date_elem.findtext("Day", default="")
-        date = "-".join(filter(None, [year, month, day]))
+        if pub_date_elem is None:
+            continue # skip paper if no date
+
+        year = pub_date_elem.findtext("Year", default="")
+        month = pub_date_elem.findtext("Month", default="")
+        day = pub_date_elem.findtext("Day", default="")
         
+        date = "-".join(filter(None, [year, month, day]))
+        if not date: 
+            continue # skip paper if date is incomplete
+
         authors = [] 
         for author in article.findall(".//AuthorList/Author"):
             first = author.findtext("ForeName", default="")
