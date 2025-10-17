@@ -1,5 +1,5 @@
 # paper-trackr
-[![Demo](https://img.shields.io/badge/demo-click%20here-orange.svg)](https://felipevzps.github.io/newsletter/paper-trackr_newsletter.html)
+[![Demo](https://img.shields.io/badge/demo-click%20here-orange.svg)](https://felipevzps.github.io/newsletter/newsletter.html)
 [![PyPI version](https://img.shields.io/pypi/v/paper-trackr)](https://pypi.org/project/paper-trackr/)
 [![Status](https://img.shields.io/badge/status-active-success.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -111,7 +111,7 @@ $ paper-trackr configure
 >You must generate an App Password via your Google Account → [Create App Password](https://support.google.com/accounts/answer/185833?hl=en)  
 
 Once configured, all future `paper-trackr` runs will deliver results directly to your email inbox.  
-See an example below, or [click here to read the latest papers published in bioinformatics.](https://felipevzps.github.io/newsletter/paper-trackr_newsletter.html).
+See an example below, or [click here to read the latest papers published in bioinformatics.](https://felipevzps.github.io/newsletter/newsletter.html).
 
 ![](https://github.com/felipevzps/paper-trackr/blob/main/images/email_example.png)
 
